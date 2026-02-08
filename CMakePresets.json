@@ -1,0 +1,238 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_PREFIX_PATH": "/opt/homebrew;/usr/local",
+        "GTSAM_DIR": "$env{GTSAM_DIR}"
+      }
+    },
+    {
+      "name": "macos-debug",
+      "inherits": "base",
+      "displayName": "macOS Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GTSAMGNSS_BUILD_TESTS": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-release",
+      "inherits": "base",
+      "displayName": "macOS Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "GTSAMGNSS_BUILD_TESTS": "OFF"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "linux-debug",
+      "inherits": "base",
+      "displayName": "Linux Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GTSAMGNSS_BUILD_TESTS": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-release",
+      "inherits": "base",
+      "displayName": "Linux Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "GTSAMGNSS_BUILD_TESTS": "OFF"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "strict-base",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "GTSAMGNSS_BUILD_TESTS": "ON",
+        "GTSAMGNSS_ENABLE_WERROR": "ON"
+      }
+    },
+    {
+      "name": "macos-debug-strict",
+      "inherits": "strict-base",
+      "displayName": "macOS Debug Strict",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "linux-debug-strict",
+      "inherits": "strict-base",
+      "displayName": "Linux Debug Strict",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-asan",
+      "inherits": "linux-debug-strict",
+      "displayName": "Linux ASAN",
+      "cacheVariables": {
+        "GTSAMGNSS_ENABLE_ASAN": "ON"
+      }
+    },
+    {
+      "name": "linux-ubsan",
+      "inherits": "linux-debug-strict",
+      "displayName": "Linux UBSAN",
+      "cacheVariables": {
+        "GTSAMGNSS_ENABLE_UBSAN": "ON"
+      }
+    },
+    {
+      "name": "linux-tsan",
+      "inherits": "linux-debug-strict",
+      "displayName": "Linux TSAN",
+      "cacheVariables": {
+        "GTSAMGNSS_ENABLE_TSAN": "ON"
+      }
+    },
+    {
+      "name": "linux-release-lto",
+      "inherits": "linux-release",
+      "displayName": "Linux Release LTO",
+      "cacheVariables": {
+        "GTSAMGNSS_ENABLE_LTO": "ON",
+        "GTSAMGNSS_ENABLE_WERROR": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build-macos-debug",
+      "configurePreset": "macos-debug"
+    },
+    {
+      "name": "build-macos-release",
+      "configurePreset": "macos-release"
+    },
+    {
+      "name": "build-linux-debug",
+      "configurePreset": "linux-debug"
+    },
+    {
+      "name": "build-linux-release",
+      "configurePreset": "linux-release"
+    },
+    {
+      "name": "build-macos-debug-strict",
+      "configurePreset": "macos-debug-strict"
+    },
+    {
+      "name": "build-linux-debug-strict",
+      "configurePreset": "linux-debug-strict"
+    },
+    {
+      "name": "build-linux-asan",
+      "configurePreset": "linux-asan"
+    },
+    {
+      "name": "build-linux-ubsan",
+      "configurePreset": "linux-ubsan"
+    },
+    {
+      "name": "build-linux-tsan",
+      "configurePreset": "linux-tsan"
+    },
+    {
+      "name": "build-linux-release-lto",
+      "configurePreset": "linux-release-lto"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test-macos-debug",
+      "configurePreset": "macos-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-linux-debug",
+      "configurePreset": "linux-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-macos-debug-strict",
+      "configurePreset": "macos-debug-strict",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-linux-debug-strict",
+      "configurePreset": "linux-debug-strict",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-linux-asan",
+      "configurePreset": "linux-asan",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-linux-ubsan",
+      "configurePreset": "linux-ubsan",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "test-linux-tsan",
+      "configurePreset": "linux-tsan",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

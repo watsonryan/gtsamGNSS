@@ -1,0 +1,40 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# CMake/Ninja artifacts
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+.ninja_deps
+.ninja_log
+
+# Testing artifacts
+Testing/
+
+# macOS
+.DS_Store
+
+# Editors/IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs
+*.log
+
+# Python cache (for local helper scripts)
+__pycache__/
+*.pyc
+
+# Archives/binaries
+*.a
+*.so
+*.dylib
+*.dll
+*.exe

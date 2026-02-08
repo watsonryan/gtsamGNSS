@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            compiler: gcc
+            cc: gcc
+            cxx: g++
+            configure_preset: linux-debug-strict
+            build_preset: build-linux-debug-strict
+            test_preset: test-linux-debug-strict
+          - os: ubuntu-latest
+            compiler: clang-asan
+            cc: clang
+            cxx: clang++
+            configure_preset: linux-asan
+            build_preset: build-linux-asan
+            test_preset: test-linux-asan
+          - os: ubuntu-latest
+            compiler: clang-ubsan
+            cc: clang
+            cxx: clang++
+            configure_preset: linux-ubsan
+            build_preset: build-linux-ubsan
+            test_preset: test-linux-ubsan
+          - os: ubuntu-latest
+            compiler: clang-tsan
+            cc: clang
+            cxx: clang++
+            configure_preset: linux-tsan
+            build_preset: build-linux-tsan
+            test_preset: test-linux-tsan
+          - os: macos-latest
+            compiler: appleclang
+            cc: clang
+            cxx: clang++
+            configure_preset: macos-debug-strict
+            build_preset: build-macos-debug-strict
+            test_preset: test-macos-debug-strict
+
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      GTSAM_INSTALL_DIR: ${{ github.workspace }}/_deps/gtsam-install
+      GTSAM_DIR: ${{ github.workspace }}/_deps/gtsam-install/lib/cmake/GTSAM
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux Dependencies
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build git libboost-all-dev
+
+      - name: Install macOS Dependencies
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew update
+          brew install cmake ninja boost
+
+      - name: Build and Install GTSAM
+        run: |
+          git clone --depth 1 https://github.com/borglab/gtsam.git /tmp/gtsam
+          cmake -S /tmp/gtsam -B /tmp/gtsam/build -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DGTSAM_BUILD_TESTS=OFF \
+            -DGTSAM_BUILD_EXAMPLES_ALWAYS=OFF \
+            -DGTSAM_BUILD_UNSTABLE=OFF \
+            -DGTSAM_USE_SYSTEM_EIGEN=ON \
+            -DCMAKE_INSTALL_PREFIX="${GTSAM_INSTALL_DIR}"
+          cmake --build /tmp/gtsam/build --target install -j2
+
+      - name: Configure
+        run: cmake --preset "${{ matrix.configure_preset }}"
+
+      - name: Build
+        run: cmake --build --preset "${{ matrix.build_preset }}" -j2
+
+      - name: Test
+        run: ctest --preset "${{ matrix.test_preset }}"
