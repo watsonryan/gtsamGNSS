@@ -28,6 +28,9 @@ private:
 Vector2 measured_;
 Point3 satXYZ_, nomXYZ_;
 typedef NoiseModelFactor3<nonBiasStates, PhaseBias, vertigo::SwitchPairLinear> Base;
+using HNonBias = typename Base::template OptionalMatrix<nonBiasStates>;
+using HPhaseBias = typename Base::template OptionalMatrix<PhaseBias>;
+using HSwitchPair = typename Base::template OptionalMatrix<vertigo::SwitchPairLinear>;
 
 public:
 
@@ -53,9 +56,11 @@ virtual gtsam::NonlinearFactor::shared_ptr clone() const {
         return gtsam::NonlinearFactor::shared_ptr(new GNSSSwitch(*this));
 }
 
-Vector evaluateError(const nonBiasStates& q, const PhaseBias& g, const vertigo::SwitchPairLinear& s, OptionalMatrixType H1 = OptionalNone,
-                     OptionalMatrixType H2 = OptionalNone,
-                     OptionalMatrixType H3 = OptionalNone) const;
+Vector evaluateError(const nonBiasStates& q, const PhaseBias& g,
+                     const vertigo::SwitchPairLinear& s,
+                     HNonBias H1 = boost::none,
+                     HPhaseBias H2 = boost::none,
+                     HSwitchPair H3 = boost::none) const;
 
 private:
 

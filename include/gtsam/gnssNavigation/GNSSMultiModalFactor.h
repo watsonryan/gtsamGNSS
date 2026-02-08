@@ -34,14 +34,14 @@ private:
   std::vector<GaussianMixtureComponent> gmm_;
 
 public:
-  using shared_ptr = std::shared_ptr<GNSSMultiModalFactor>;
+  using shared_ptr = gtsam::NonlinearFactor::shared_ptr;
 
   GNSSMultiModalFactor() : measured_() { h_ = Matrix(2, 5); }
 
   GNSSMultiModalFactor(Key deltaStates, Key bias, const Vector2 measurement,
                        const Point3 satXYZ, const Point3 nomXYZ,
                        const std::vector<GaussianMixtureComponent>& gmm)
-      : Base(cref_list_of<2>(deltaStates)(bias)),
+      : Base(KeyVector{deltaStates, bias}),
         k1_(deltaStates),
         k2_(bias),
         satXYZ_(satXYZ),
@@ -78,7 +78,7 @@ public:
   Vector whitenedError(const gtsam::Values& x,
                        std::vector<Matrix>* H = nullptr) const;
 
-  Vector residual(const gtsam::Values& x) const override {
+  Vector residual(const gtsam::Values& x) const {
     return unwhitenedError(x);
   }
 
@@ -91,10 +91,10 @@ public:
     return true;
   }
 
-  std::shared_ptr<gtsam::GaussianFactor> linearize(
+  gtsam::GaussianFactor::shared_ptr linearize(
       const gtsam::Values& x) const override {
     if (!active(x))
-      return std::shared_ptr<JacobianFactor>();
+      return gtsam::GaussianFactor::shared_ptr();
 
     std::vector<Matrix> A(this->size());
     const auto residual_cov = computeResidualAndCovariance(x, &A);

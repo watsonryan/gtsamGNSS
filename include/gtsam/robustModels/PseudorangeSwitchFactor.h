@@ -21,6 +21,8 @@ class GTSAM_EXPORT PseudorangeSwitchFactor : public NoiseModelFactor2<nonBiasSta
 
 private:
 typedef NoiseModelFactor2<nonBiasStates,vertigo::SwitchVariableLinear> Base;
+using HNonBias = typename Base::template OptionalMatrix<nonBiasStates>;
+using HSwitch = typename Base::template OptionalMatrix<vertigo::SwitchVariableLinear>;
 Point3 nomXYZ_;
 Point3 satXYZ_;
 double measured_;
@@ -49,8 +51,8 @@ virtual gtsam::NonlinearFactor::shared_ptr clone() const {
 /// vector of errors
 Vector evaluateError(const nonBiasStates& q,
                      const vertigo::SwitchVariableLinear& s,
-                     OptionalMatrixType H1 = OptionalNone,
-                     OptionalMatrixType H2 = OptionalNone) const;
+                     HNonBias H1 = boost::none,
+                     HSwitch H2 = boost::none) const;
 
 private:
 

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <gtsam/base/DerivedValue.h>
+#include <gtsam/base/Matrix.h>
 #include <gtsam/base/Lie.h>
 
 #include <cstddef>
@@ -15,7 +15,7 @@
 
 namespace vertigo {
 
-struct SwitchPairLinear : public gtsam::DerivedValue<SwitchPairLinear> {
+struct SwitchPairLinear {
   SwitchPairLinear() : v_(0.0, 0.0) {}
   explicit SwitchPairLinear(gtsam::Vector2 v) : v_(v) {}
   SwitchPairLinear(double x, double y) : v_(x, y) {}
@@ -58,10 +58,10 @@ struct SwitchPairLinear : public gtsam::DerivedValue<SwitchPairLinear> {
   }
 
   inline SwitchPairLinear between(const SwitchPairLinear& l2,
-                                  OptionalMatrixType H1 = OptionalNone,
-                                  OptionalMatrixType H2 = OptionalNone) const {
-    if (H1) *H1 = -gtsam::eye(2);
-    if (H2) *H2 = gtsam::eye(2);
+                                  gtsam::OptionalJacobian<2, 2> H1 = boost::none,
+                                  gtsam::OptionalJacobian<2, 2> H2 = boost::none) const {
+    if (H1) *H1 = -gtsam::Matrix::Identity(2, 2);
+    if (H2) *H2 = gtsam::Matrix::Identity(2, 2);
     return SwitchPairLinear(l2.value() - value());
   }
 
@@ -110,8 +110,8 @@ struct traits<vertigo::SwitchPairLinear> {
 
   static TangentVector Local(const vertigo::SwitchPairLinear& origin,
                              const vertigo::SwitchPairLinear& other,
-                             ChartJacobian Horigin = OptionalNone,
-                             ChartJacobian Hother = OptionalNone) {
+                             ChartJacobian Horigin = boost::none,
+                             ChartJacobian Hother = boost::none) {
     (void)Horigin;
     (void)Hother;
     return origin.localCoordinates(other);
@@ -120,8 +120,8 @@ struct traits<vertigo::SwitchPairLinear> {
   static vertigo::SwitchPairLinear Retract(
       const vertigo::SwitchPairLinear& g,
       const TangentVector& v,
-      ChartJacobian H1 = OptionalNone,
-      ChartJacobian H2 = OptionalNone) {
+      ChartJacobian H1 = boost::none,
+      ChartJacobian H2 = boost::none) {
     (void)H1;
     (void)H2;
     return g.retract(v);

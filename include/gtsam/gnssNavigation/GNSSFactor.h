@@ -23,6 +23,8 @@ class GTSAM_EXPORT GNSSFactor : public NoiseModelFactor2<nonBiasStates, PhaseBia
 
 private:
 typedef NoiseModelFactor2<nonBiasStates, PhaseBias> Base;
+using HNonBias = typename Base::template OptionalMatrix<nonBiasStates>;
+using HPhaseBias = typename Base::template OptionalMatrix<PhaseBias>;
 Point3 satXYZ_;
 Point3 nomXYZ_;
 Vector2 measured_;
@@ -57,8 +59,8 @@ virtual gtsam::NonlinearFactor::shared_ptr clone() const {
 }
 
 Vector evaluateError(const nonBiasStates& q, const PhaseBias& g,
-                     OptionalMatrixType H1 = OptionalNone,
-                     OptionalMatrixType H2 = OptionalNone ) const;
+                     HNonBias H1 = boost::none,
+                     HPhaseBias H2 = boost::none ) const;
 
 private:
 

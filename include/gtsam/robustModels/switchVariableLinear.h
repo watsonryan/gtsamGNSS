@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gtsam/base/DerivedValue.h>
+#include <gtsam/base/Matrix.h>
 #include <gtsam/base/Lie.h>
 
 #include <cstddef>
@@ -10,7 +10,7 @@
 namespace vertigo {
 
 // SwitchVariableLinear wraps a scalar switch state constrained to [0, 1].
-struct SwitchVariableLinear : public gtsam::DerivedValue<SwitchVariableLinear> {
+struct SwitchVariableLinear {
   SwitchVariableLinear() : d_(0.0) {}
   explicit SwitchVariableLinear(double d) : d_(d) {}
 
@@ -43,10 +43,10 @@ struct SwitchVariableLinear : public gtsam::DerivedValue<SwitchVariableLinear> {
   }
 
   inline SwitchVariableLinear between(const SwitchVariableLinear& l2,
-                                      OptionalMatrixType H1 = OptionalNone,
-                                      OptionalMatrixType H2 = OptionalNone) const {
-    if (H1) *H1 = -gtsam::eye(1);
-    if (H2) *H2 = gtsam::eye(1);
+                                      gtsam::OptionalJacobian<1, 1> H1 = boost::none,
+                                      gtsam::OptionalJacobian<1, 1> H2 = boost::none) const {
+    if (H1) *H1 = -gtsam::Matrix::Identity(1, 1);
+    if (H2) *H2 = gtsam::Matrix::Identity(1, 1);
     return SwitchVariableLinear(l2.value() - value());
   }
 
@@ -95,8 +95,8 @@ struct traits<vertigo::SwitchVariableLinear> {
 
   static TangentVector Local(const vertigo::SwitchVariableLinear& origin,
                              const vertigo::SwitchVariableLinear& other,
-                             ChartJacobian Horigin = OptionalNone,
-                             ChartJacobian Hother = OptionalNone) {
+                             ChartJacobian Horigin = boost::none,
+                             ChartJacobian Hother = boost::none) {
     (void)Horigin;
     (void)Hother;
     return origin.localCoordinates(other);
@@ -105,8 +105,8 @@ struct traits<vertigo::SwitchVariableLinear> {
   static vertigo::SwitchVariableLinear Retract(
       const vertigo::SwitchVariableLinear& g,
       const TangentVector& v,
-      ChartJacobian H1 = OptionalNone,
-      ChartJacobian H2 = OptionalNone) {
+      ChartJacobian H1 = boost::none,
+      ChartJacobian H2 = boost::none) {
     (void)H1;
     (void)H2;
     return g.retract(v);

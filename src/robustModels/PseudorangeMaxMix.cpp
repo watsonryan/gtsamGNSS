@@ -13,7 +13,7 @@ namespace gtsam {
 
 //***************************************************************************
 Vector PseudorangeMaxMix::evaluateError(const nonBiasStates& q,
-                                        OptionalMatrixType H1 ) const {
+                                        HNonBias H1 ) const {
 
         auto error = ( Vector(1) << h_.transpose()*q-measured_ ).finished();
 
@@ -22,14 +22,14 @@ Vector PseudorangeMaxMix::evaluateError(const nonBiasStates& q,
         auto g2 = noiseModel::Gaussian::Covariance(
                 (( Vector(1) << hyp_/w_).finished()).asDiagonal());
 
-        double m1 = this->noiseModel()->distance(error);
+        double m1 = this->noiseModel()->squaredMahalanobisDistance(error);
         Matrix info1(g1->information());
         const double info_det1 =
             std::max(info1.determinant(), std::numeric_limits<double>::min());
         double nu1 = std::sqrt(info_det1);
         double l1 = nu1 * std::exp(-0.5 * m1);
 
-        double m2 = nullHypothesisModel_->distance(error);
+        double m2 = nullHypothesisModel_->squaredMahalanobisDistance(error);
         Matrix info2(g2->information());
         const double info_det2 =
             std::max(info2.determinant(), std::numeric_limits<double>::min());

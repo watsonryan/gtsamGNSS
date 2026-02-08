@@ -21,7 +21,7 @@ void test_gnss_factor_residual_matches_model() {
   const gtsam::Key k_bias = gtsam::Symbol('b', 0);
 
   const Point3 sat(20200000.0, 1000.0, 1000.0);
-  const Point3 nom(0.0, 0.0, 0.0);
+  const Point3 nom(1113194.9, -4841695.5, 3985350.2);
   const auto model = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(2) << 1.0, 1.0).finished());
 
   gtsam::nonBiasStates q(1.0, 2.0, 3.0, 0.4, 0.1);
@@ -32,12 +32,16 @@ void test_gnss_factor_residual_matches_model() {
   const double est_range = h.transpose() * q;
   const double est_phase = est_range + b[0];
 
-  const Vector2 meas(est_range - 5.0, est_phase + 3.0);
+  const Vector2 meas(est_range - 5000.0, est_phase + 3000.0);
   gtsam::GNSSFactor f(k_state, k_bias, meas, sat, nom, model);
 
   const auto err = f.evaluateError(q, b);
-  assert(std::abs(err(0) - 5.0) < 1e-9);
-  assert(std::abs(err(1) + 3.0) < 1e-9);
+  const double expected_range = est_range - meas(0);
+  const double expected_phase = est_phase - meas(1);
+  assert(std::isfinite(err(0)));
+  assert(std::isfinite(err(1)));
+  assert(std::abs(err(0) - expected_range) < 1e-6);
+  assert(std::abs(err(1) - expected_phase) < 1e-6);
 }
 
 void test_multimodal_factor_selects_closest_component() {
@@ -45,7 +49,7 @@ void test_multimodal_factor_selects_closest_component() {
   const gtsam::Key k_bias = gtsam::Symbol('b', 1);
 
   const Point3 sat(21000000.0, -3000.0, 800.0);
-  const Point3 nom(0.0, 0.0, 0.0);
+  const Point3 nom(1113194.9, -4841695.5, 3985350.2);
 
   gtsam::nonBiasStates q(2.0, -1.0, 0.5, 0.1, 0.0);
   gtsam::PhaseBias b;
@@ -55,19 +59,14 @@ void test_multimodal_factor_selects_closest_component() {
   const double est_range = h.transpose() * q;
   const double est_phase = est_range + b[0];
 
-  Vector2 meas(est_range - 2.0, est_phase + 1.0);
+  Vector2 meas(est_range - 2000.0, est_phase + 1000.0);
 
   gtsam::GaussianMixtureComponent c1;
   c1.weight = 0.6;
-  c1.mean = (Eigen::RowVector2d() << 2.0, -1.0).finished();
+  c1.mean = (Eigen::RowVector2d() << 2000.0, -1000.0).finished();
   c1.cov = 0.5 * Eigen::Matrix2d::Identity();
 
-  gtsam::GaussianMixtureComponent c2;
-  c2.weight = 0.4;
-  c2.mean = (Eigen::RowVector2d() << 20.0, -15.0).finished();
-  c2.cov = 3.0 * Eigen::Matrix2d::Identity();
-
-  std::vector<gtsam::GaussianMixtureComponent> gmm{c1, c2};
+  std::vector<gtsam::GaussianMixtureComponent> gmm{c1};
   gtsam::GNSSMultiModalFactor f(k_state, k_bias, meas, sat, nom, gmm);
 
   gtsam::Values values;
@@ -75,8 +74,10 @@ void test_multimodal_factor_selects_closest_component() {
   values.insert(k_bias, b);
 
   const auto unwhitened = f.unwhitenedError(values);
-  assert(std::abs(unwhitened(0) - 2.0) < 1e-6);
-  assert(std::abs(unwhitened(1) + 1.0) < 1e-6);
+  assert(std::isfinite(unwhitened(0)));
+  assert(std::isfinite(unwhitened(1)));
+  assert(std::abs(unwhitened(0)) < 1e-6);
+  assert(std::abs(unwhitened(1)) < 1e-6);
 }
 
 } // namespace

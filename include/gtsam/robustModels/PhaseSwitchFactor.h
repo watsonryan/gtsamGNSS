@@ -22,6 +22,9 @@ class GTSAM_EXPORT PhaseSwitchFactor : public NoiseModelFactor3<nonBiasStates, P
 
 private:
 typedef NoiseModelFactor3<nonBiasStates, PhaseBias, vertigo::SwitchVariableLinear> Base;
+using HNonBias = typename Base::template OptionalMatrix<nonBiasStates>;
+using HPhaseBias = typename Base::template OptionalMatrix<PhaseBias>;
+using HSwitch = typename Base::template OptionalMatrix<vertigo::SwitchVariableLinear>;
 Point3 nomXYZ_;
 Point3 satXYZ_;
 double measured_;
@@ -51,9 +54,9 @@ virtual gtsam::NonlinearFactor::shared_ptr clone() const {
 Vector evaluateError(const nonBiasStates& q,
                      const PhaseBias& b,
                      const vertigo::SwitchVariableLinear& s,
-                     OptionalMatrixType H1 = OptionalNone,
-                     OptionalMatrixType H2 = OptionalNone,
-                     OptionalMatrixType H3 = OptionalNone) const;
+                     HNonBias H1 = boost::none,
+                     HPhaseBias H2 = boost::none,
+                     HSwitch H3 = boost::none) const;
 
 private:
 

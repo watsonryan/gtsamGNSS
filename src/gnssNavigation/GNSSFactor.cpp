@@ -20,7 +20,9 @@ void GNSSFactor::print(const std::string& s,
         this->noiseModel_->print("  noise model: ");
 }
 
-Vector GNSSFactor::evaluateError(const nonBiasStates& q, const PhaseBias& g, OptionalMatrixType H1, OptionalMatrixType H2) const {
+Vector GNSSFactor::evaluateError(const nonBiasStates& q, const PhaseBias& g,
+                                 HNonBias H1,
+                                 HPhaseBias H2) const {
 
         Vector h = obsMap(satXYZ_, nomXYZ_, 1);
 

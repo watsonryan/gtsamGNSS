@@ -17,12 +17,16 @@ template <class VALUE>
 class BetweenFactorSwitchableLinear
     : public NoiseModelFactor3<VALUE, VALUE, vertigo::SwitchVariableLinear> {
  public:
+  using Base = NoiseModelFactor3<VALUE, VALUE, vertigo::SwitchVariableLinear>;
+  using HValue = typename Base::template OptionalMatrix<VALUE>;
+  using HSwitch = typename Base::template OptionalMatrix<vertigo::SwitchVariableLinear>;
+
   BetweenFactorSwitchableLinear() = default;
 
   BetweenFactorSwitchableLinear(Key key1, Key key2, Key key3,
                                 const VALUE& measured,
                                 const SharedNoiseModel& model)
-      : NoiseModelFactor3<VALUE, VALUE, vertigo::SwitchVariableLinear>(model,
+      : Base(model,
                                                                         key1,
                                                                         key2,
                                                                         key3),
@@ -30,9 +34,9 @@ class BetweenFactorSwitchableLinear
 
   Vector evaluateError(const VALUE& p1, const VALUE& p2,
                        const vertigo::SwitchVariableLinear& s,
-                       OptionalMatrixType H1 = OptionalNone,
-                       OptionalMatrixType H2 = OptionalNone,
-                       OptionalMatrixType H3 = OptionalNone) const {
+                       HValue H1 = boost::none,
+                       HValue H2 = boost::none,
+                       HSwitch H3 = boost::none) const {
     Vector error = betweenFactor.evaluateError(p1, p2, H1, H2);
     error *= s.value();
 

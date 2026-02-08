@@ -49,8 +49,8 @@ GNSSDCSFactor() : measured_() {
 }
 
 GNSSDCSFactor(Key deltaStates, Key bias, const Vector2 measurement,
-              const Point3 satXYZ, const Point3 nomXYZ, Eigen::MatrixXd &model, const Vector2 k) :
-        Base(cref_list_of<2>(deltaStates)(bias)), k1_(deltaStates), k2_(bias), k_(k), measured_(measurement), satXYZ_(satXYZ), nomXYZ_(nomXYZ), model_(model) {
+              const Point3 satXYZ, const Point3 nomXYZ, const Eigen::MatrixXd& model, const Vector2 k) :
+        Base(KeyVector{deltaStates, bias}), k1_(deltaStates), k2_(bias), k_(k), measured_(measurement), satXYZ_(satXYZ), nomXYZ_(nomXYZ), model_(model) {
 }
 
 virtual ~GNSSDCSFactor() {
@@ -67,7 +67,8 @@ virtual bool equals(const NonlinearFactor& f, double tol = 1e-9) const {
 }
 
 virtual gtsam::NonlinearFactor::shared_ptr clone() const {
-        return gtsam::NonlinearFactor::shared_ptr(new GNSSDCSFactor(*this));
+        return gtsam::NonlinearFactor::shared_ptr(
+            new GNSSDCSFactor(k1_, k2_, measured_, satXYZ_, nomXYZ_, model_, k_));
 }
 
 virtual double error(const gtsam::Values& x) const {
@@ -106,13 +107,13 @@ bool active(const gtsam::Values& x) const {
  * Hence \f$ b = z - h(x) = - \mathtt{error\_vector}(x) \f$
  */
 /* This version of linearize recalculates the noise model each time */
-virtual std::shared_ptr<gtsam::GaussianFactor> linearize(
+virtual gtsam::GaussianFactor::shared_ptr linearize(
         const gtsam::Values& x) const {
 
         const int iter_count = iter_count_.fetch_add(1, std::memory_order_relaxed) + 1;
 
         if (!active(x))
-                return std::shared_ptr<JacobianFactor>();
+                return gtsam::GaussianFactor::shared_ptr();
 
         // Call evaluate error to get Jacobians and RHS vector b
         std::vector<Matrix> A(this->size());

@@ -21,6 +21,7 @@ class GTSAM_EXPORT PseudorangeMaxMix : public NoiseModelFactor1<nonBiasStates> {
 
 private:
 typedef NoiseModelFactor1<nonBiasStates> Base;
+using HNonBias = typename Base::template OptionalMatrix<nonBiasStates>;
 double measured_, w_, hyp_;
 nonBiasStates h_;
 SharedNoiseModel nullHypothesisModel_;
@@ -51,7 +52,7 @@ virtual gtsam::NonlinearFactor::shared_ptr clone() const {
 
 /// vector of errors
 Vector evaluateError(const nonBiasStates& q,
-                     OptionalMatrixType H1 = OptionalNone) const;
+                     HNonBias H1 = boost::none) const;
 
 private:
 

@@ -11,8 +11,8 @@ namespace gtsam {
 //***************************************************************************
 Vector PseudorangeSwitchFactor::evaluateError(const nonBiasStates& q,
                                               const vertigo::SwitchVariableLinear& s,
-                                              OptionalMatrixType H1,
-                                              OptionalMatrixType H2) const {
+                                              HNonBias H1,
+                                              HSwitch H2) const {
 
         Vector h_ = obsMap(satXYZ_, nomXYZ_, 1);
         const double residual = (h_.transpose() * q) - measured_;

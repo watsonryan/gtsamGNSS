@@ -13,8 +13,8 @@
 #include <gtsam/base/Vector.h>
 #include <gtsam/base/Matrix.h>
 #include <gtsam/geometry/Point3.h>
-#include <gtsam/geometry/Point4.h>
 #include <gtsam/base/VectorSpace.h>
+#include <boost/none.hpp>
 
 namespace gtsam {
 
@@ -82,16 +82,16 @@ inline static nonBiasStates identity() {
 /// @{
 
 /** distance between two points */
-double distance(const nonBiasStates& p2, OptionalJacobian<1, 5> H1 = OptionalNone,
-                OptionalJacobian<1, 5> H2 = OptionalNone) const;
+double distance(const nonBiasStates& p2, OptionalJacobian<1, 5> H1 = boost::none,
+                OptionalJacobian<1, 5> H2 = boost::none) const;
 
 /** Distance of the point from the origin, with Jacobian */
-double norm(OptionalJacobian<1,5> H = OptionalNone) const;
+double norm(OptionalJacobian<1,5> H = boost::none) const;
 
 
 /** dot product @return this * q*/
-double dot(const nonBiasStates &q, OptionalJacobian<1, 5> H_p = OptionalNone,     //
-           OptionalJacobian<1, 5> H_q = OptionalNone) const;
+double dot(const nonBiasStates &q, OptionalJacobian<1, 5> H_p = boost::none,     //
+           OptionalJacobian<1, 5> H_q = boost::none) const;
 
 /// @}
 /// @name Standard Interface
@@ -159,10 +159,10 @@ static nonBiasStates Expmap(const Vector5& v) {
 inline double dist(const nonBiasStates& q) const {
         return (q - *this).norm();
 }
-nonBiasStates add(const nonBiasStates& q, OptionalJacobian<5, 5> H1 = OptionalNone,
-                  OptionalJacobian<5, 5> H2 = OptionalNone) const;
-nonBiasStates sub(const nonBiasStates& q, OptionalJacobian<5, 5> H1 = OptionalNone,
-                  OptionalJacobian<5, 5> H2 = OptionalNone) const;
+nonBiasStates add(const nonBiasStates& q, OptionalJacobian<5, 5> H1 = boost::none,
+                  OptionalJacobian<5, 5> H2 = boost::none) const;
+nonBiasStates sub(const nonBiasStates& q, OptionalJacobian<5, 5> H1 = boost::none,
+                  OptionalJacobian<5, 5> H2 = boost::none) const;
 /// @}
 #endif
 
@@ -183,17 +183,17 @@ std::ostream &operator<<(std::ostream &os, const gtsam::nonBiasPair &p);
 
 /// distance between two points
 double distance5(const nonBiasStates& p1, const nonBiasStates& q,
-                 OptionalJacobian<1, 5> H1 = OptionalNone,
-                 OptionalJacobian<1, 5> H2 = OptionalNone);
+                 OptionalJacobian<1, 5> H1 = boost::none,
+                 OptionalJacobian<1, 5> H2 = boost::none);
 
 
 /// Distance of the point from the origin, with Jacobian
-double norm5(const nonBiasStates& p, OptionalJacobian<1, 5> H = OptionalNone);
+double norm5(const nonBiasStates& p, OptionalJacobian<1, 5> H = boost::none);
 
 /// dot product
 double dot(const nonBiasStates& p, const nonBiasStates& q,
-           OptionalJacobian<1, 5> H_p = OptionalNone,
-           OptionalJacobian<1, 5> H_q = OptionalNone);
+           OptionalJacobian<1, 5> H_p = boost::none,
+           OptionalJacobian<1, 5> H_q = boost::none);
 
 template <typename A1, typename A2>
 struct Range;
@@ -202,8 +202,8 @@ template <>
 struct Range<nonBiasStates, nonBiasStates> {
         typedef double result_type;
         double operator()(const nonBiasStates& p, const nonBiasStates& q,
-                          OptionalJacobian<1, 5> H1 = OptionalNone,
-                          OptionalJacobian<1, 5> H2 = OptionalNone) {
+                          OptionalJacobian<1, 5> H1 = boost::none,
+                          OptionalJacobian<1, 5> H2 = boost::none) {
                 return distance5(p, q, H1, H2);
         }
 };

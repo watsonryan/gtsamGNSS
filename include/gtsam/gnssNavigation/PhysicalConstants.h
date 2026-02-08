@@ -9,7 +9,7 @@
 namespace gtsam {
 
 const int speedOfLight = 299792458;   // [m/s]
-const int gravity = 9.80665;   // [m/s*s]
+const double gravity = 9.80665;   // [m/s*s]
 const double L1 = 1575.42e+6;   // GPS L1 freq [HZ]
 const double L2 = 1227.6e+6;   // GPS L2 freq [Hz]
 const double L5 = 1176.45e+6;   // GPS L5 freq [Hz]

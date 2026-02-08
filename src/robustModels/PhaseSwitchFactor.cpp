@@ -8,7 +8,12 @@
 
 namespace gtsam {
 //***************************************************************************
-Vector PhaseSwitchFactor::evaluateError(const nonBiasStates& q, const PhaseBias& g, const vertigo::SwitchVariableLinear& s, OptionalMatrixType H1, OptionalMatrixType H2, OptionalMatrixType H3) const {
+Vector PhaseSwitchFactor::evaluateError(
+    const nonBiasStates& q, const PhaseBias& g,
+    const vertigo::SwitchVariableLinear& s,
+    HNonBias H1,
+    HPhaseBias H2,
+    HSwitch H3) const {
 
         Vector h = obsMap(satXYZ_, nomXYZ_, 1);
         double est = (h.transpose() * q) + g[0];

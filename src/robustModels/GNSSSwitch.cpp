@@ -21,7 +21,11 @@ void GNSSSwitch::print(const std::string& s,
         this->noiseModel_->print("  noise model: ");
 }
 
-Vector GNSSSwitch::evaluateError(const nonBiasStates& q, const PhaseBias& g, const vertigo::SwitchPairLinear& s, OptionalMatrixType H1, OptionalMatrixType H2, OptionalMatrixType H3) const {
+Vector GNSSSwitch::evaluateError(const nonBiasStates& q, const PhaseBias& g,
+                                 const vertigo::SwitchPairLinear& s,
+                                 HNonBias H1,
+                                 HPhaseBias H2,
+                                 HSwitchPair H3) const {
 
         Vector5 h = obsMap(satXYZ_, nomXYZ_, 1);
 

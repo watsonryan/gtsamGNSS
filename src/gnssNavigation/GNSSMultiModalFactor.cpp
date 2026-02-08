@@ -61,7 +61,8 @@ std::pair<Vector, Matrix2> GNSSMultiModalFactor::computeResidualAndCovariance(
     }
     const Eigen::Vector2d solved = llt.solve(res_local);
     const double quad = res_local.dot(solved);
-    const double sqrt_det = llt.matrixL().diagonal().array().abs().prod();
+    const double sqrt_det =
+        llt.matrixL().toDenseMatrix().diagonal().array().abs().prod();
     const double det = std::max(
         sqrt_det * sqrt_det, std::numeric_limits<double>::min());
     const double norm = std::pow(std::sqrt(2.0 * kPi), -1) * std::pow(det, -0.5);

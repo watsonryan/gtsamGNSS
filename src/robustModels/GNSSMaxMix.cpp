@@ -23,7 +23,9 @@ void GNSSMaxMix::print(const std::string& s,
         this->noiseModel_->print("  noise model: ");
 }
 
-Vector GNSSMaxMix::evaluateError(const nonBiasStates& q, const PhaseBias& g, OptionalMatrixType H1, OptionalMatrixType H2) const {
+Vector GNSSMaxMix::evaluateError(const nonBiasStates& q, const PhaseBias& g,
+                                 HNonBias H1,
+                                 HPhaseBias H2) const {
 
         Vector h = obsMap(satXYZ_, nomXYZ_, 1);
 
@@ -35,13 +37,13 @@ Vector GNSSMaxMix::evaluateError(const nonBiasStates& q, const PhaseBias& g, Opt
         noiseModel::Diagonal::shared_ptr null = noiseModel::Diagonal::Variances(variances_/w_);
 
 
-        const double m1 = hypothesis->distance(error);
+        const double m1 = hypothesis->squaredMahalanobisDistance(error);
         const gtsam::Matrix info1(hypothesis->information());
         const double info_det1 = std::max(info1.determinant(), std::numeric_limits<double>::min());
         const double nu1 = std::sqrt(info_det1);
         const double l1 = nu1 * std::exp(-0.5 * m1);
 
-        const double m2 = null->distance(error);
+        const double m2 = null->squaredMahalanobisDistance(error);
         const gtsam::Matrix info2(null->information());
         const double info_det2 = std::max(info2.determinant(), std::numeric_limits<double>::min());
         const double nu2 = std::sqrt(info_det2);

@@ -5,7 +5,7 @@ project(gtsamGNSS
     DESCRIPTION "Standalone GNSS/robust factor extensions for modern GTSAM"
     LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -25,6 +25,25 @@ set(_GTSAM_HINTS
     "/opt/homebrew/lib/cmake/GTSAM"
     "/usr/local/lib/cmake/GTSAM"
     "/usr/lib/cmake/GTSAM")
+find_package(Eigen3 CONFIG QUIET)
+if(NOT TARGET Eigen3::Eigen)
+  set(_GTSAMGNSS_EIGEN_HINTS "")
+  if(DEFINED GTSAM_DIR)
+    list(APPEND _GTSAMGNSS_EIGEN_HINTS
+      "${GTSAM_DIR}/../eigen3-src"
+      "${GTSAM_DIR}/../../eigen3-src")
+  endif()
+  find_path(GTSAMGNSS_EIGEN_INCLUDE_DIR Eigen/Core
+      HINTS
+      ${_GTSAMGNSS_EIGEN_HINTS}
+      "/opt/homebrew/include/eigen3"
+      "/usr/local/include/eigen3"
+      "/usr/include/eigen3")
+  if(GTSAMGNSS_EIGEN_INCLUDE_DIR)
+    add_library(Eigen3::Eigen INTERFACE IMPORTED)
+    target_include_directories(Eigen3::Eigen INTERFACE "${GTSAMGNSS_EIGEN_INCLUDE_DIR}")
+  endif()
+endif()
 find_package(GTSAM CONFIG QUIET HINTS ${_GTSAM_HINTS})
 if(NOT GTSAM_FOUND)
   message(FATAL_ERROR
@@ -62,7 +81,11 @@ target_include_directories(gtsamGNSS
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(gtsamGNSS PUBLIC gtsam)
+if(TARGET GTSAM::gtsam)
+  target_link_libraries(gtsamGNSS PUBLIC GTSAM::gtsam)
+else()
+  target_link_libraries(gtsamGNSS PUBLIC gtsam)
+endif()
 
 set(_GTSAMGNSS_WARNING_FLAGS
     $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall;-Wextra;-Wpedantic>)
@@ -109,7 +132,11 @@ endif()
 if(GTSAMGNSS_BUILD_TESTS)
   enable_testing()
   add_executable(gtsamgnss_factor_math_test test/test_factor_math.cpp)
-  target_link_libraries(gtsamgnss_factor_math_test PRIVATE gtsamGNSS::gtsamGNSS gtsam)
+  if(TARGET GTSAM::gtsam)
+    target_link_libraries(gtsamgnss_factor_math_test PRIVATE gtsamGNSS::gtsamGNSS GTSAM::gtsam)
+  else()
+    target_link_libraries(gtsamgnss_factor_math_test PRIVATE gtsamGNSS::gtsamGNSS gtsam)
+  endif()
   gtsamgnss_apply_quality_flags(gtsamgnss_factor_math_test)
   if(GTSAMGNSS_ENABLE_LTO AND gtsamgnss_ipo_supported)
     set_property(TARGET gtsamgnss_factor_math_test PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
